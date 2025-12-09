@@ -21,9 +21,25 @@ server.use(helmet());
 server.use(express.json());
 server.use(cors());
 
+const session = require("express-session");
+server.use(session({
+  name: "cikolatacips", 
+  secret: "12345",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: false,
+    maxAge: 24 * 60 * 60 * 1000,
+  },
+}));
 server.get("/", (req, res) => {
   res.json({ api: "up" });
 });
+
+const userRouter = require("./users/users-router");
+server.use("/api/users", userRouter);
+const authRouter = require("./auth/auth-router");
+server.use("/api/auth", authRouter);
 
 server.use((err, req, res, next) => { // eslint-disable-line
   res.status(err.status || 500).json({
